@@ -4,27 +4,25 @@
     <item
         android:id="@+id/itemFragment5"
         android:icon="@drawable/ic_fragment_search"
-        android:title="Search"
-        />
+        android:title="Search"/>
+
     <item
         android:id="@+id/itemFragment4"
         android:icon="@drawable/ic_fragment_map"
-        android:title="Map"
-        />
+        android:title="Map"/>
+
     <item
         android:id="@+id/itemFragment3"
         android:icon="@drawable/ic_fragment_pins"
-        android:title="Pins"
-        />
+        android:title="Pins"/>
+
     <item
         android:id="@+id/itemFragment2"
         android:icon="@drawable/ic_fragment_locations"
-        android:title="Locations"
-        />
+        android:title="Locations"/>
+
     <item
         android:id="@+id/itemFragment1"
         android:icon="@drawable/ic_fragment_account"
-        android:title="Account"
-        />
-
+        android:title="Account"/>
 </menu>

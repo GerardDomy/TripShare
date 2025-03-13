@@ -16,7 +16,7 @@ class HomescreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_homescreen)
 
-        // Hide action bar
+        // Ocultar la barra de acción
         supportActionBar?.hide()
 
         // Text view
@@ -29,12 +29,12 @@ class HomescreenActivity : AppCompatActivity() {
         val imageAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in)
         backgroundImage.startAnimation(imageAnimation)
 
-        // Splashscreen delay
+        // Retardo de la pantalla de bienvenida (Splashscreen)
         Handler(Looper.getMainLooper()).postDelayed({
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
             finish()
-            // Time in milliseconds
+            // Tiempo en milisegundos
         }, 2100)
     }
 }

@@ -1,4 +1,4 @@
-package com.example.tripshare
+package com.example.tripshare.Locations
 
 
 data class Location(
