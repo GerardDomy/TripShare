@@ -6,21 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tripshare.Location
-import com.example.tripshare.MapViewModel
 import com.example.tripshare.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FragmentLocations : Fragment() {
 
-    private val mapViewModel: MapViewModel by activityViewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var locationAdapter: LocationAdapter
-    private val locationsList = mutableListOf<Location>()
+    private val groupedLocations = mutableListOf<CountryWithLocations>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,7 +27,7 @@ class FragmentLocations : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        locationAdapter = LocationAdapter(locationsList)
+        locationAdapter = LocationAdapter(groupedLocations)
         recyclerView.adapter = locationAdapter
 
         getLocationsFromFirebase()
@@ -47,20 +44,27 @@ class FragmentLocations : Fragment() {
 
         locationsRef.get()
             .addOnSuccessListener { result ->
-                locationsList.clear()
-                for (document in result) {
-                    val latitude = document.getDouble("latitude") ?: 0.0
-                    val longitude = document.getDouble("longitude") ?: 0.0
-                    val address = document.getString("address") ?: "Dirección desconocida"
-                    val country = document.getString("country") ?: "País desconocido"
+                val locationsMap = mutableMapOf<String, MutableList<String>>()
 
-                    val location = Location(latitude, longitude, address, country)
-                    locationsList.add(location)
+                for (document in result) {
+                    val country = document.getString("country") ?: "País desconegut"
+                    val address = document.getString("address") ?: "Adreça desconeguda"
+
+                    if (!locationsMap.containsKey(country)) {
+                        locationsMap[country] = mutableListOf()
+                    }
+                    locationsMap[country]?.add(address)
                 }
+
+                groupedLocations.clear()
+                for ((country, addresses) in locationsMap) {
+                    groupedLocations.add(CountryWithLocations(country, addresses))
+                }
+
                 locationAdapter.notifyDataSetChanged()
             }
             .addOnFailureListener { exception ->
-                Log.e("FragmentLocations", "Error al obtener ubicaciones", exception)
+                Log.e("FragmentLocations", "Error al carregar ubicacions", exception)
             }
     }
 }

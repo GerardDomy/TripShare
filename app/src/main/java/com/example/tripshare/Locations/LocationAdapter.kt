@@ -4,29 +4,35 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tripshare.Location
 import com.example.tripshare.R
 
-class LocationAdapter(private val locations: List<Location>) :
-    RecyclerView.Adapter<LocationAdapter.LocationViewHolder>() {
+class LocationAdapter(private val countryList: List<CountryWithLocations>) :
+    RecyclerView.Adapter<LocationAdapter.CountryViewHolder>() {
 
-    class LocationViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val addressTextView: TextView = view.findViewById(R.id.addressTextView)
+    class CountryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val countryTextView: TextView = view.findViewById(R.id.countryTextView)
+        val locationsRecyclerView: RecyclerView = view.findViewById(R.id.locationsRecyclerView)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CountryViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_location, parent, false)
-        return LocationViewHolder(view)
+            .inflate(R.layout.item_country, parent, false)
+        return CountryViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: LocationViewHolder, position: Int) {
-        val location = locations[position]
-        holder.addressTextView.text = location.address
-        holder.countryTextView.text = location.country
+    override fun onBindViewHolder(holder: CountryViewHolder, position: Int) {
+        val countryWithLocations = countryList[position]
+        holder.countryTextView.text = countryWithLocations.country
+
+        // Configurar RecyclerView per a les adreces dins del país
+        holder.locationsRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
+        holder.locationsRecyclerView.adapter = AddressAdapter(countryWithLocations.locations)
+        holder.locationsRecyclerView.visibility = View.VISIBLE
     }
 
-    override fun getItemCount() = locations.size
+    override fun getItemCount() = countryList.size
 }
+

@@ -7,6 +7,7 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.example.tripshare.Location
 import com.example.tripshare.MapViewModel
 import com.example.tripshare.R
 import com.google.android.gms.maps.GoogleMap
@@ -83,22 +84,26 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
             .document(userId)
             .collection("locations")
 
-        locationsRef.get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    val latitude = document.getDouble("latitude") ?: 0.0
-                    val longitude = document.getDouble("longitude") ?: 0.0
-                    val address = document.getString("address")
+        locationsRef.get().addOnSuccessListener { result ->
+            mapViewModel.selectedLocations.clear() // Netejar la lista abans de carregar altres llocs
+            map.clear()
 
-                    val latLng = LatLng(latitude, longitude)
+            for (document in result) {
+                val latitude = document.getDouble("latitude") ?: 0.0
+                val longitude = document.getDouble("longitude") ?: 0.0
+                val address = document.getString("address")
+
+                val latLng = LatLng(latitude, longitude)
+
                     map.addMarker(
                         MarkerOptions()
                             .position(latLng)
                             .title(address)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
                     )
-                }
+
             }
+        }
             .addOnFailureListener { exception ->
                 Log.e("FragmentMap", "Error al obtener las ubicaciones", exception)
             }

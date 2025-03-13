@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
         android:layout_width="match_parent"
@@ -16,5 +16,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="681dp"
+        android:padding="16dp"
+        tools:listitem="@layout/item_country" />
+
 </LinearLayout>
