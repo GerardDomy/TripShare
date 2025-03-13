@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/white"
+    tools:context=".Register_Login.RegisterActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:paddingBottom="16dp"
+        android:text="Registrarse"/>
+
+    <EditText
+        android:id="@+id/registerEmail"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/rounded_edittext"
+        android:padding="12dp"
+        android:inputType="textEmailAddress"
+        android:hint="Correo electrónico"/>
+
+    <EditText
+        android:id="@+id/registerPassword"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/rounded_edittext"
+        android:padding="12dp"
+        android:inputType="textPassword"
+        android:hint="Contraseña"
+        android:layout_marginTop="8dp"/>
+
+    <EditText
+        android:id="@+id/registerRepeatPassword"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/rounded_edittext"
+        android:padding="12dp"
+        android:inputType="textPassword"
+        android:hint="Repetir contraseña"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/registerButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/rounded_button"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:text="Registrarse"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/registerGoLoginButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/rounded_outline_button"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:text="Ya tengo una cuenta"
+        android:layout_marginTop="8dp"/>
+</LinearLayout>

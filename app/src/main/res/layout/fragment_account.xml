@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Account.FragmentAccount">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="80dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_fragment_account"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.051"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:text="Nombre de Usuario"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/profile_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.109"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btnSettings"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="24dp"
+        android:background="@null"
+        android:contentDescription="Image"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_settings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_edit_profile"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="256dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="92dp"
+        android:text="Editar Perfil"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textColorLink="#FFFFFF"
+        android:textSize="12sp"
+        app:cornerRadius="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.851"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/username"
+        app:strokeColor="@color/black" />
+
+    <androidx.gridlayout.widget.GridLayout
+        android:layout_width="252dp"
+        android:layout_height="38dp"
+        android:background="#00FFFFFF"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.83"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.120000005">
+
+        <TextView
+            android:id="@+id/publicaciones"
+            android:layout_width="99dp"
+            android:layout_height="wrap_content"
+            android:text="publicaciones"
+            android:textAlignment="center"
+            app:layout_column="0"
+            app:layout_row="1" />
+
+        <TextView
+            android:id="@+id/seguidores"
+            android:layout_width="84dp"
+            android:layout_height="wrap_content"
+            android:text="seguidores"
+            android:textAlignment="center"
+            app:layout_column="1"
+            app:layout_row="1" />
+
+        <TextView
+            android:id="@+id/seguidos"
+            android:layout_width="72dp"
+            android:layout_height="wrap_content"
+            android:text="seguidos"
+            android:textAlignment="center"
+            app:layout_column="2"
+            app:layout_row="1" />
+
+        <TextView
+            android:id="@+id/pubNum"
+            android:layout_width="99dp"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textAlignment="center"
+            app:layout_column="0"
+            app:layout_row="0" />
+
+        <TextView
+            android:id="@+id/seguidoresNum"
+            android:layout_width="83dp"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textAlignment="center"
+            app:layout_column="1"
+            app:layout_row="0" />
+
+        <TextView
+            android:id="@+id/seguidosNum"
+            android:layout_width="73dp"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textAlignment="center"
+            app:layout_column="2"
+            app:layout_row="0" />
+    </androidx.gridlayout.widget.GridLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewPhotos"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_edit_profile"
+        app:layout_constraintVertical_bias="0.22000003" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_add_photo"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="100dp"
+        android:src="@drawable/ic_add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
