@@ -60,6 +60,9 @@ class FragmentPins : Fragment(), OnMapReadyCallback {
                 val latLng = place.latLng!!
                 val country = getCountryFromLatLng(latLng)
 
+                // Limpiar la lista antes de agregar una nueva ubicación
+                mapViewModel.selectedLocations.clear()
+
                 // Crea una nueva ubicación con la información del lugar
                 val location = Location(latLng.latitude, latLng.longitude, place.address, country)
                 mapViewModel.selectedLocations.add(location)
@@ -69,6 +72,9 @@ class FragmentPins : Fragment(), OnMapReadyCallback {
 
                 // Guarda la ubicación en Firebase
                 mapViewModel.saveLocationsToFirebase()
+
+                // Limpiar los marcadores en el mapa antes de agregar uno nuevo
+                map.clear()
 
                 // Agrega un marcador en el mapa para la ubicación seleccionada
                 map.addMarker(

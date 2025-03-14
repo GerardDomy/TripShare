@@ -9,11 +9,13 @@
     <EditText
         android:id="@+id/searchUsersET"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="6dp"
-        android:hint="Search users hear...">
+        android:layout_height="48dp"
+        android:hint="Search users hear..."
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:padding="8dp"
+        android:background="#EFEFEF"
+        android:layout_margin="8dp"/>
 
-    </EditText>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/searchList"

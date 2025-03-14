@@ -7,6 +7,7 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.example.tripshare.Locations.Location
 import com.example.tripshare.MapViewModel
 import com.example.tripshare.R
 import com.google.android.gms.maps.GoogleMap
@@ -105,6 +106,7 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
                 val address = document.getString("address")
 
                 val latLng = LatLng(latitude, longitude)
+                mapViewModel.selectedLocations.add(Location(latitude, longitude, address, null))
 
                     map.addMarker(
                         MarkerOptions()

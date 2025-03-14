@@ -8,12 +8,15 @@ import com.google.firebase.auth.FirebaseAuth
 
 class MapViewModel : ViewModel() {
 
+
     // Lista mutable para almacenar las ubicaciones seleccionadas
     val selectedLocations = mutableListOf<Location>()
+
 
     // Referencias a FirebaseFirestore y FirebaseAuth
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+
 
     // Método para guardar las ubicaciones seleccionadas en Firebase
     fun saveLocationsToFirebase() {
@@ -24,8 +27,10 @@ class MapViewModel : ViewModel() {
             return
         }
 
+
         // Referencia a la colección 'locations' del usuario en Firestore
         val locationsRef = db.collection("users").document(userId).collection("locations")
+
 
         // Recorre las ubicaciones seleccionadas y las guarda en Firestore
         for (location in selectedLocations) {
@@ -34,8 +39,12 @@ class MapViewModel : ViewModel() {
                 "latitude" to location.latitude,
                 "longitude" to location.longitude,
                 "address" to location.address,
-                "country" to location.country
+                "country" to location.country,
+                "flagUrl" to location.flagUrl
+
+
             )
+
 
             // Se agrega la ubicación a la base de datos de Firestore
             locationsRef.add(locationMap)
@@ -49,6 +58,7 @@ class MapViewModel : ViewModel() {
         }
     }
 }
+
 
 
 
