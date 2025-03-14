@@ -107,7 +107,10 @@ class FragmentLocations : Fragment() {
                 originalLocations.clear()
                 groupedLocations.clear()
 
-                for ((country, addresses) in locationsMap) {
+                val sortedCountries = locationsMap.keys.sorted()
+
+                for (country in sortedCountries) {
+                    val addresses = locationsMap[country] ?: listOf()
                     val countryWithLocations = CountryWithLocations(country, addresses)
                     originalLocations.add(countryWithLocations)
                     groupedLocations.add(countryWithLocations)
