@@ -1,16 +1,29 @@
 package com.example.tripshare.Account
 
-import android.net.Uri
+import android.util.Log
+import com.example.tripshare.R
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tripshare.R
+import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.FirebaseFirestore
 
-class PhotosAdapter(private val photosList: List<Uri>) : RecyclerView.Adapter<PhotosAdapter.PhotoViewHolder>() {
 
-    var onImageClickListener: ((Uri) -> Unit)? = null
+class PhotosAdapter(private val userUid: String) : RecyclerView.Adapter<PhotosAdapter.PhotoViewHolder>() {
+
+    private var photosList: MutableList<Photo> = mutableListOf()
+    private val db = FirebaseFirestore.getInstance()
+    var onImageClickListener: ((String) -> Unit)? = null
+    private val user = FirebaseAuth.getInstance().currentUser
+
+    init {
+        loadPhotosFromFirestore()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_photo, parent, false)
@@ -18,19 +31,56 @@ class PhotosAdapter(private val photosList: List<Uri>) : RecyclerView.Adapter<Ph
     }
 
     override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
-        val photoUri = photosList[position]
-        holder.imageView.setImageURI(photoUri)
+        val photo = photosList[position]
 
-        holder.imageView.setOnClickListener {
-            onImageClickListener?.invoke(photoUri)
+        Log.d("PhotosAdapter", "Cargando imagen desde: ${photo.imageUrl}")
+
+        if (!photo.imageUrl.isNullOrEmpty()) {
+            Glide.with(holder.itemView.context)
+                .load(photo.imageUrl) // URL válida
+                .placeholder(R.drawable.logo) // Imagen temporal mientras se carga
+                .error(R.drawable.rounded_button) // Imagen en caso de error
+                .into(holder.imageView)
+        } else {
+            Log.e("PhotosAdapter", "URL de imagen vacía o nula")
+        }
+
+        holder.itemView.setOnClickListener {
+            onImageClickListener?.invoke(photo.imageUrl)
         }
     }
 
-    override fun getItemCount() = photosList.size
+    override fun getItemCount(): Int = photosList.size
 
     inner class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.imageViewPhoto)
     }
+
+    private fun loadPhotosFromFirestore() {
+        val userUid = user?.uid ?: return
+        val photosRef = db.collection("users").document(userUid).collection("photos")
+
+        photosRef.orderBy("timestamp", Query.Direction.DESCENDING).get()
+            .addOnSuccessListener { documents ->
+                photosList.clear()
+                for (document in documents) {
+                    val imageUrl = document.getString("imageUrl") ?: continue
+                    val description = document.getString("description") ?: ""
+                    val location = document.getString("location") ?: ""
+
+                    Log.d("FirestoreDebug", "Imagen cargada: $imageUrl")
+
+                    val photo = Photo(imageUrl, description, location)  // Crear objeto correctamente
+                    photosList.add(photo)
+                }
+                notifyDataSetChanged()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FirestoreDebug", "Error al cargar imágenes", exception)
+            }
+    }
 }
+
+
 
 

@@ -9,4 +9,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="primaryColor">#6200EE</color>
+
+    <!--    Setting-->
+    <color name="settings_text_title">#000000</color>
 </resources>

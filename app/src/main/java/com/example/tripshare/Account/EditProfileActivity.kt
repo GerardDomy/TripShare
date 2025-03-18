@@ -58,37 +58,38 @@ class EditProfileActivity: AppCompatActivity() {
     private fun saveProfileChanges() {
         val name = editName.text.toString()
 
-        user?.let {
-            db.collection("users").document(it.uid).get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        val currentImageUri = document.getString("imageUri")
-                        val imageUrl = imageUri?.toString() ?: currentImageUri ?: ""
+        user?.let { currentUser ->
+            val userDocRef = db.collection("users").document(currentUser.uid)
 
-                        val userData = hashMapOf(
-                            "uid" to it.uid,
-                            "email" to it.email,
-                            "name" to name,
-                            "imageUri" to imageUrl
-                        )
+            // 🔹 Primer, llegim totes les dades existents
+            userDocRef.get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val currentImageUri = document.getString("imageUri")
+                    val imageUrl = imageUri?.toString() ?: currentImageUri ?: ""
 
-                        db.collection("users").document(it.uid)
-                            .set(userData)
-                            .addOnSuccessListener {
-                                Toast.makeText(this, "Perfil actualizado", Toast.LENGTH_SHORT).show()
-                                setResult(RESULT_OK, Intent().apply {
-                                    putExtra("name", name)
-                                    putExtra("imageUri", imageUrl)
-                                })
-                                finish()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
-                            }
-                    }
+                    // 🔹 Mantenim tots els camps existents per no perdre `photoCount`
+                    val currentData = document.data ?: hashMapOf()
+                    currentData["name"] = name
+                    currentData["imageUri"] = imageUrl
+
+                    // 🔹 Ara sobreescrivim el document, però sense perdre `photoCount`
+                    userDocRef.set(currentData)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Perfil actualitzat", Toast.LENGTH_SHORT).show()
+                            setResult(RESULT_OK, Intent().apply {
+                                putExtra("name", name)
+                                putExtra("imageUri", imageUrl)
+                            })
+                            finish()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Error en actualitzar el perfil", Toast.LENGTH_SHORT).show()
+                        }
                 }
+            }
         }
     }
+
 
     private fun loadUserProfile() {
         user?.let {
