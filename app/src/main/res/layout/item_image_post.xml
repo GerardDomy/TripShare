@@ -5,6 +5,13 @@
     android:padding="8dp"
     android:background="@android:color/white">
 
+
+    <!-- android:layout_marginTop="30dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="16dp"-->
+
+
     <!-- Encabezado: Avatar, Nombre de usuario y opciones -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -58,14 +65,30 @@
             android:contentDescription="Opciones" />
     </LinearLayout>
 
-    <!-- Imagen -->
-    <ImageView
-        android:id="@+id/image_view"
+    <!-- Contenedor para la imagen y el efecto de "like" -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="500dp"
-        android:scaleType="centerCrop"
-        android:background="@android:color/darker_gray"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp">
+
+        <!-- Imagen -->
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="@android:color/darker_gray" />
+
+        <!-- Efecto de "like" (se muestra temporalmente) -->
+        <ImageView
+            android:id="@+id/like_effect_view"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_favorite_view"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            android:alpha="2.0" />
+    </FrameLayout>
 
     <!-- Botones de interacción -->
     <LinearLayout
