@@ -88,33 +88,7 @@ class FragmentPins : Fragment(), OnMapReadyCallback {
             }
         })
 
-        // Botón de opciones del mapa que muestra un menú emergente
-        val mapOptionButton: ImageButton = view.findViewById(R.id.mapOptionsMenu)
-        val popupMenu = PopupMenu(requireContext(), mapOptionButton)
-        popupMenu.menuInflater.inflate(R.menu.map_options, popupMenu.menu)
-
-        // Cambia el tipo de mapa según la opción seleccionada
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-            changeMap(menuItem.itemId)
-            true
-        }
-
-        // Muestra el menú cuando se hace clic en el botón de opciones
-        mapOptionButton.setOnClickListener {
-            popupMenu.show()
-        }
-
         return view
-    }
-
-    // Cambia el tipo de mapa según la opción seleccionada en el menú
-    private fun changeMap(itemId: Int) {
-        when (itemId) {
-            R.id.normal_map -> map?.mapType = GoogleMap.MAP_TYPE_NORMAL
-            R.id.hybrid_map -> map?.mapType = GoogleMap.MAP_TYPE_HYBRID
-            R.id.satellite_map -> map?.mapType = GoogleMap.MAP_TYPE_SATELLITE
-            R.id.terrain_map -> map?.mapType = GoogleMap.MAP_TYPE_TERRAIN
-        }
     }
 
     // Se ejecuta después de que la vista ha sido creada, aquí se obtiene el mapa

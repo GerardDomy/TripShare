@@ -18,5 +18,29 @@
         android:id="@+id/terrain_map"
         android:title="Terrain Map"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/dark_map"
+        android:title="Mapa Oscuro"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/dark_satelit_map"
+        android:title="Satelite Oscuro"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/silver_map"
+        android:title="Plateado"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/vintatge_map"
+        android:title="Vintatge"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/blue_map"
+        android:title="Azul Oscuro"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/blue_light_map"
+        android:title="Azul Claro"
+        app:showAsAction="never"/>
 
 </menu>

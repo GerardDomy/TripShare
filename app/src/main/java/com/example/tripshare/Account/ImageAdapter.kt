@@ -8,9 +8,13 @@ import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.tripshare.R
@@ -44,6 +48,7 @@ class ImageAdapter(
         private val textLocation: TextView = itemView.findViewById(R.id.text_location)
         private val buttonLike: ImageButton = itemView.findViewById(R.id.button_like)
         private val likeEffectView: ImageView = itemView.findViewById(R.id.like_effect_view)
+        private val buttonOptions: ImageButton = itemView.findViewById(R.id.button_options)
 
         private var isLiked = false
         private lateinit var photoId: String
@@ -66,6 +71,9 @@ class ImageAdapter(
 
             buttonLike.setOnClickListener {
                 toggleLike()
+            }
+            buttonOptions.setOnClickListener {
+                showOptionsMenu(it)
             }
         }
 
@@ -154,6 +162,116 @@ class ImageAdapter(
                 }
             }
         }
+        private fun showOptionsMenu(view: View) {
+            val popupMenu = PopupMenu(itemView.context, view)
+            popupMenu.menuInflater.inflate(R.menu.options_menu, popupMenu.menu)
+
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.edit_description -> {
+                        showEditDescriptionDialog()
+                        true
+                    }
+                    R.id.edit_location -> {
+                        showEditLocationDialog()
+                        true
+                    }
+                    R.id.delete_photo -> {
+                        deletePhoto()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            popupMenu.show()
+        }
+        // Método para mostrar un diálogo para editar la descripción
+        private fun showEditDescriptionDialog() {
+            val builder = AlertDialog.Builder(itemView.context)
+            val input = EditText(itemView.context).apply {
+                setText(textDescription.text.toString()) // Cargar la descripción actual
+                hint = "Nueva descripción"
+            }
+
+            builder.setTitle("Editar descripción")
+                .setView(input)
+                .setPositiveButton("Guardar") { dialog, _ ->
+                    val newDescription = input.text.toString()
+                    updateDescriptionInDatabase(newDescription)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
+                .show()
+        }
+
+        // Método para mostrar un diálogo para editar la localización
+        private fun showEditLocationDialog() {
+            val builder = AlertDialog.Builder(itemView.context)
+            val input = EditText(itemView.context).apply {
+                setText(textLocation.text.toString()) // Cargar la localización actual
+                hint = "Nueva localización"
+            }
+
+            builder.setTitle("Editar localización")
+                .setView(input)
+                .setPositiveButton("Guardar") { dialog, _ ->
+                    val newLocation = input.text.toString()
+                    updateLocationInDatabase(newLocation)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
+                .show()
+        }
+        // Método para actualizar la descripción en Firebase
+        private fun updateDescriptionInDatabase(newDescription: String) {
+            val photoRef = db.collection("users").document(userUid!!).collection("photos").document(photoId)
+            photoRef.update("description", newDescription)
+                .addOnSuccessListener {
+                    textDescription.text = newDescription
+                    Toast.makeText(itemView.context, "Descripción actualizada", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(itemView.context, "Error al actualizar la descripción", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        // Método para actualizar la localización en Firebase
+        private fun updateLocationInDatabase(newLocation: String) {
+            val photoRef = db.collection("users").document(userUid!!).collection("photos").document(photoId)
+            photoRef.update("location", newLocation)
+                .addOnSuccessListener {
+                    textLocation.text = newLocation
+                    Toast.makeText(itemView.context, "Localización actualizada", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(itemView.context, "Error al actualizar la localización", Toast.LENGTH_SHORT).show()
+                }
+        }
+        // Método para eliminar la foto
+        private fun deletePhoto() {
+            val photoRef = db.collection("users").document(userUid!!).collection("photos").document(photoId)
+
+            // Eliminar los "likes" asociados a la foto
+            val likesRef = db.collection("likes").document(photoId).collection("users")
+            likesRef.get().addOnSuccessListener { documents ->
+                for (document in documents) {
+                    document.reference.delete() // Eliminar cada like
+                }
+            }
+
+            // Eliminar la foto de la colección
+            photoRef.delete()
+                .addOnSuccessListener {
+                    Toast.makeText(itemView.context, "Foto eliminada", Toast.LENGTH_SHORT).show()
+                    // Aquí puedes agregar código para eliminar la imagen del RecyclerView o actualizar la interfaz
+                }
+                .addOnFailureListener {
+                    Toast.makeText(itemView.context, "Error al eliminar la foto", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+
     }
 }
 
