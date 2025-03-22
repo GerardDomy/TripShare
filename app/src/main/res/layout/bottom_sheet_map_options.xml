@@ -1,0 +1,295 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    android:background="@android:color/white">
+
+    <!-- Drag Handle -->
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:layout_width="match_parent"
+        android:layout_height="24dp" />
+
+    <!-- Título -->
+    <TextView
+        android:id="@+id/title_configuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:text="Configuración del Mapa"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <!-- Estilo de Mapa -->
+    <TextView
+        android:id="@+id/map_style_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:text="Estilo de Mapa"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Estilo 1 -->
+            <LinearLayout
+                android:id="@+id/style_1_container"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingEnd="8dp">
+
+                <ImageView
+                    android:id="@+id/map_style_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/map_normal" />
+
+                <Button
+                    android:id="@+id/use_style_1_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar" />
+            </LinearLayout>
+
+            <!-- Estilo 2 -->
+            <LinearLayout
+                android:id="@+id/style_2_container"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/map_style_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/map_hybrid" />
+
+                <Button
+                    android:id="@+id/use_style_2_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar" />
+            </LinearLayout>
+
+            <!-- Estilo 3 -->
+            <LinearLayout
+                android:id="@+id/style_3_container"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/map_style_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/map_satelite" />
+
+                <Button
+                    android:id="@+id/use_style_3_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar" />
+            </LinearLayout>
+
+
+            <!-- Estilo 4 -->
+            <LinearLayout
+                android:id="@+id/style_4_container"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/map_style_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/map_terrain" />
+
+                <Button
+                    android:id="@+id/use_style_4_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar" />
+            </LinearLayout>
+
+            <!-- Estilo 5 -->
+            <LinearLayout
+                android:id="@+id/style_5_container"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/map_style_5"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/map_black" />
+
+                <Button
+                    android:id="@+id/use_style_5_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar" />
+            </LinearLayout>
+
+            <!-- Estilo 6 -->
+            <LinearLayout
+                android:id="@+id/style_6_container"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/map_style_6"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/map_black_satellite" />
+
+                <Button
+                    android:id="@+id/use_style_6_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar" />
+            </LinearLayout>
+
+            <!-- Estilo 7 -->
+            <LinearLayout
+                android:id="@+id/style_7_container"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/map_style_7"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/map_silver" />
+
+                <Button
+                    android:id="@+id/use_style_7_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar" />
+            </LinearLayout>
+
+            <!-- Estilo 8 -->
+            <LinearLayout
+                android:id="@+id/style_8_container"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/map_style_8"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/map_blue" />
+
+                <Button
+                    android:id="@+id/use_style_8_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar" />
+            </LinearLayout>
+
+            <!-- Estilo 9 -->
+            <LinearLayout
+                android:id="@+id/style_9_container"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/map_style_9"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/map_blue_light" />
+
+                <Button
+                    android:id="@+id/use_style_9_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar" />
+            </LinearLayout>
+
+            <!-- Estilo 10 -->
+            <LinearLayout
+                android:id="@+id/style_10_container"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/map_style_10"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/map_vintage" />
+
+                <Button
+                    android:id="@+id/use_style_10_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar" />
+            </LinearLayout>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Opciones adicionales -->
+    <TextView
+        android:id="@+id/pin_style_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Estilo de Alfiler"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <!-- Opciones de alfiler -->
+    <Switch
+        android:id="@+id/use_flags_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Usar Banderas"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"/>
+
+    <Switch
+        android:id="@+id/group_pins_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Agrupar Pines por País"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tamaño del pin"
+        android:textSize="20dp"
+        android:textColor="@color/black"
+        android:layout_marginTop="15dp"/>
+    <com.google.android.material.slider.Slider
+        android:id="@+id/discreteSlider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stepSize="10.0"
+        android:valueFrom="0.0"
+        android:valueTo="100.0"
+        android:value="40.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/continuousRangeSlider"
+        app:trackColorInactive="@color/quantum_grey500" />
+</LinearLayout>
+
+
