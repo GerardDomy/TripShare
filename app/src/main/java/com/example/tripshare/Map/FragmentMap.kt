@@ -2,12 +2,14 @@ package com.example.tripshare.Map
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.Switch
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.tripshare.Locations.Location
@@ -26,6 +28,13 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.slider.Slider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.Locale
 
 class FragmentMap : Fragment(), OnMapReadyCallback {
 
@@ -33,6 +42,9 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
     private val mapViewModel: MapViewModel by activityViewModels()
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private val markers = mutableListOf<Marker>()
+    private var useFlags = false
+    private var currentSizeFactor = 1.0f
+    private var groupPinsByCountry = false
 
 
     override fun onCreateView(
@@ -43,6 +55,17 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
 
         // Obtener referencia al Bottom Sheet
         val bottomSheet = view.findViewById<LinearLayout>(R.id.bottom_sheet)
+
+        val useFlagsSwitch = view.findViewById<Switch>(R.id.use_flags_switch)
+        useFlagsSwitch.setOnCheckedChangeListener { _, isChecked ->
+            useFlags = isChecked
+            updateMarkerIcons() // Actualizar los iconos de los marcadores cuando el switch cambie
+        }
+        val groupPinsSwitch = view.findViewById<Switch>(R.id.group_pins_switch)
+        groupPinsSwitch.setOnCheckedChangeListener { _, isChecked ->
+            groupPinsByCountry = isChecked
+            getLocationsFromFirebase()
+        }
 
         // Verificar que bottomSheet no sea nulo
         if (bottomSheet == null) {
@@ -56,28 +79,6 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
         // Configurar el comportamiento del Bottom Sheet
         bottomSheetBehavior.peekHeight = 300 // Altura inicial (mitad de la pantalla)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN // Estado inicial: oculto
-
-        // Configurar el listener para manejar los estados del Bottom Sheet
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                /*when (newState) {
-                    BottomSheetBehavior.STATE_EXPANDED -> {
-                        // Ocultar solo cuando el BottomSheet esté completamente abierto
-                        view.findViewById<FloatingActionButton>(R.id.mapOptionButton).visibility = View.GONE
-                    }
-                    BottomSheetBehavior.STATE_HALF_EXPANDED,
-                    BottomSheetBehavior.STATE_HIDDEN,
-                    BottomSheetBehavior.STATE_COLLAPSED -> {
-                        // Mostrar cuando el BottomSheet esté a la mitad o cerrado
-                        view.findViewById<FloatingActionButton>(R.id.mapOptionButton).visibility = View.VISIBLE
-                    }
-                }*/
-            }
-
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                // Manejar el deslizamiento si es necesario
-            }
-        })
 
         // Configurar eventos de clic para los estilos de mapa
         view.findViewById<Button>(R.id.use_style_1_button).setOnClickListener {
@@ -152,9 +153,9 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
         setMarkerSize(initialMarkerSize) // Usar el valor inicial para establecer el tamaño
 
 // Configurar el listener para cambiar el tamaño del marcador
-        discreteSlider.addOnChangeListener { slider, value, fromUser ->
+        discreteSlider.addOnChangeListener { _, value, _ ->
             // Usar la lógica para determinar el tamaño del marcador en función del valor
-            val sizeFactor = when (value) {
+            currentSizeFactor = when (value) {
                 in 0f..10f -> 0.6f  // 40% més petit que 40 (40 * 0.6)
                 in 10f..20f -> 0.7f  // 30% més petit que 40 (40 * 0.7)
                 in 20f..30f -> 0.8f  // 20% més petit que 40 (40 * 0.8)
@@ -167,7 +168,7 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
                 in 90f..100f -> 1.5f // 50% més gran que 40 (40 * 1.5)
                 else -> 1.6f        // 60% més gran que 40 (40 * 1.6)
             }
-            setMarkerSize(sizeFactor) // Ajustar el tamaño de los marcadores según el valor
+            setMarkerSize(currentSizeFactor) // Ajustar el tamaño de los marcadores según el valor
         }
 
         // Configurar el OnClickListener para el botón mapOptionsMenu
@@ -216,8 +217,7 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
             marker?.let { markers.add(it) }
         }
     }
-
-    fun getLocationsFromFirebase() {
+    private fun getLocationsFromFirebase() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val locationsRef = FirebaseFirestore.getInstance()
             .collection("users")
@@ -227,6 +227,9 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
         locationsRef.get().addOnSuccessListener { result ->
             mapViewModel.selectedLocations.clear()
             map.clear()
+            markers.clear()
+
+            val countryMarkers = mutableMapOf<String, LatLng>()
 
             for (document in result) {
                 val latitude = document.getDouble("latitude") ?: 0.0
@@ -234,12 +237,22 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
                 val address = document.getString("address")
 
                 val latLng = LatLng(latitude, longitude)
-                mapViewModel.selectedLocations.add(Location(latitude, longitude, address, null))
+                val country = getCountryByLatLng(latLng)
 
+                if (groupPinsByCountry) {
+                    if (country != null && !countryMarkers.containsKey(country)) {
+                        val capitalLatLng = getCapitalLatLng(country) ?: latLng
+                        countryMarkers[country] = capitalLatLng
+                    }
+                } else {
+                    countryMarkers[latLng.toString()] = latLng
+                }
+            }
+
+            for ((_, latLng) in countryMarkers) {
                 val marker = map.addMarker(
                     MarkerOptions()
                         .position(latLng)
-                        .title(address)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
                 )
                 marker?.let { markers.add(it) }
@@ -248,36 +261,104 @@ class FragmentMap : Fragment(), OnMapReadyCallback {
             Log.e("FragmentMap", "Error al obtener las ubicaciones", exception)
         }
     }
-    // Función para cambiar el tamaño de todos los marcadores
-    private fun setMarkerSize(sizeFactor: Float) {
-        for (marker in markers) {
-            val markerIcon = BitmapDescriptorFactory.fromResource(R.drawable.ic_marker)
-            val resizedIcon = resizeMarkerIcon(markerIcon, sizeFactor)
 
-            // Establecer el nuevo icono al marcador
-            marker.setIcon(resizedIcon)
+    private fun getCapitalLatLng(countryCode: String): LatLng? {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        return try {
+            val addresses = geocoder.getFromLocationName(getCountryNameByCode(countryCode), 1)
+            addresses?.firstOrNull()?.let { LatLng(it.latitude, it.longitude) }
+        } catch (e: Exception) {
+            Log.e("FragmentMap", "Error obteniendo la capital", e)
+            null
         }
     }
 
-    // Método para redimensionar el icono del marcador
-    private fun resizeMarkerIcon(icon: BitmapDescriptor, sizeFactor: Float): BitmapDescriptor {
-        // Obtener el bitmap original del descriptor
-        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_marker)
+    private fun getCountryNameByCode(countryCode: String): String {
+        val locale = Locale("", countryCode)
+        return locale.displayCountry
+    }
 
-        // Calcular el nuevo tamaño en base al factor
+
+    // Función para cambiar el tamaño de todos los marcadores
+    private fun setMarkerSize(sizeFactor: Float) {
+        for (marker in markers) {
+            val location = marker.position
+            val country = getCountryByLatLng(location)
+
+            if (useFlags && country != null) {
+                // Si el switch està activat, canviar la mida de la bandera
+                loadFlagForCountry(country) { flagUrl ->
+                    GlobalScope.launch(Dispatchers.Main) {
+                        val bitmap = withContext(Dispatchers.IO) {
+                            loadImageFromUrl(flagUrl)
+                        }
+                        val resizedBitmap = resizeBitmap(bitmap, sizeFactor) // Redimensionar la bandera
+                        val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(resizedBitmap)
+                        marker.setIcon(bitmapDescriptor)
+                    }
+                }
+            } else {
+                // Si el switch està desactivat, canviar la mida del marcador per defecte
+                val markerIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_marker)
+                val resizedIcon = resizeBitmap(markerIcon, sizeFactor) // Redimensionar el marcador normal
+                marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizedIcon))
+            }
+        }
+    }
+    private fun resizeBitmap(bitmap: Bitmap, sizeFactor: Float): Bitmap {
         val width = (bitmap.width * sizeFactor).toInt()
         val height = (bitmap.height * sizeFactor).toInt()
 
-        // Asegurarse de que el ancho y la altura sean mayores que 0
-        if (width <= 0 || height <= 0) {
-            Log.e("FragmentMap", "Invalid width or height for resized marker: $width x $height")
-            return icon // Retornar el icono original si el tamaño es inválido
+        return if (width > 0 && height > 0) {
+            Bitmap.createScaledBitmap(bitmap, width, height, false)
+        } else {
+            bitmap // Si la mida és incorrecta, retorna el bitmap original
         }
+    }
 
-        // Redimensionar el bitmap
-        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false)
+    private fun updateMarkerIcons() {
+        for (marker in markers) {
+            val location = marker.position
+            val country = getCountryByLatLng(location)
 
-        // Convertir el bitmap redimensionado a un BitmapDescriptor
-        return BitmapDescriptorFactory.fromBitmap(resizedBitmap)
+            if (useFlags && country != null) {
+                loadFlagForCountry(country) { flagUrl ->
+                    GlobalScope.launch(Dispatchers.Main) {
+                        val bitmap = withContext(Dispatchers.IO) {
+                            loadImageFromUrl(flagUrl)
+                        }
+                        val resizedBitmap = resizeBitmap(bitmap, currentSizeFactor) // Manté la mida correcta
+                        val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(resizedBitmap)
+                        marker.setIcon(bitmapDescriptor)
+                    }
+                }
+            } else {
+                val markerIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_marker)
+                val resizedIcon = resizeBitmap(markerIcon, currentSizeFactor) // Manté la mida correcta
+                marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizedIcon))
+            }
+        }
+    }
+
+    private fun loadFlagForCountry(countryCode: String, callback: (String) -> Unit) {
+        val flagUrl = "https://flagcdn.com/w40/${countryCode.lowercase()}.png"
+        callback(flagUrl)
+    }
+    private fun loadImageFromUrl(url: String): Bitmap {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        connection.doInput = true
+        connection.connect()
+        val inputStream = connection.inputStream
+        return BitmapFactory.decodeStream(inputStream)
+    }
+    private fun getCountryByLatLng(latLng: LatLng): String? {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        return try {
+            val addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+            addresses?.firstOrNull()?.countryCode // Retorna el codi de país (ex: "US", "ES")
+        } catch (e: Exception) {
+            Log.e("FragmentMap", "Error obtenint el país", e)
+            null
+        }
     }
 }

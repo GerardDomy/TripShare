@@ -43,6 +43,11 @@ android {
 
 dependencies {
 
+    //Coroutine
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+
+
+
     //Buscador Usuaris
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.cardview:cardview:1.0.0")
