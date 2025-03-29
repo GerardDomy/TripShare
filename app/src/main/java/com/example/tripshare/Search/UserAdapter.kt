@@ -1,6 +1,7 @@
 package com.example.tripshare.Search
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +31,13 @@ class UserAdapter(
                 .into(holder.profileImageView)
         } else {
             holder.profileImageView.setImageResource(R.drawable.ic_fragment_account)
+        }
+
+        holder.itemView.setOnClickListener {
+            val intent = Intent(mContext, ProfileActivity::class.java).apply {
+                putExtra("USER_NAME", user.name)
+            }
+            mContext.startActivity(intent) // Iniciem l'Activity
         }
     }
 

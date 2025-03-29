@@ -52,6 +52,12 @@ class PhotosAdapter(private val userUid: String) : RecyclerView.Adapter<PhotosAd
 
     override fun getItemCount(): Int = photosList.size
 
+    fun updatePhotos(newPhotos: List<Photo>) {
+        photosList.clear()
+        photosList.addAll(newPhotos)
+        notifyDataSetChanged()
+    }
+
     inner class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.imageViewPhoto)
     }
