@@ -38,6 +38,8 @@ class FragmentAccount : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var btnSettings: ImageButton
     private lateinit var pubNumTextView: TextView  // Contador de fotos
+    private lateinit var seguidoresNumTextView: TextView
+    private lateinit var seguidosNumTextView: TextView
 
     private val PICK_IMAGE = 1
     private val photosList = mutableListOf<Photo>()
@@ -58,6 +60,8 @@ class FragmentAccount : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerViewPhotos)
         btnSettings = view.findViewById(R.id.btnSettings)
         pubNumTextView = view.findViewById(R.id.pubNum)
+        seguidoresNumTextView = view.findViewById(R.id.seguidoresNum)
+        seguidosNumTextView = view.findViewById(R.id.seguidosNum)
 
         recyclerView.layoutManager = GridLayoutManager(context, 3)
 
@@ -75,6 +79,7 @@ class FragmentAccount : Fragment() {
         btnAddPhoto.setOnClickListener { openGallery() }
         btnSettings.setOnClickListener { openSettings() }
 
+        loadFollowData()
         loadUserProfile()
         loadUserPhotos()
         return view
@@ -218,6 +223,32 @@ class FragmentAccount : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(context, "Error al cargar ubicaciones", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun loadFollowData() {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userDocRef = db.collection("users").document(userUid)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                // Obtener seguidores desde Firestore (se supone que se actualiza desde ActivityProfile)
+                val seguidores = document.getLong("followersCount")?.toInt() ?: 0
+                seguidoresNumTextView.text = seguidores.toString()
+
+                // Obtener seguidos desde Firestore y calcular suma
+                val seguidosRef = db.collection("users").document(userUid).collection("following")
+
+                seguidosRef.get().addOnSuccessListener { followingDocs ->
+                    val seguidosCount = followingDocs.size() // Contar los documentos en "following"
+                    seguidosNumTextView.text = seguidosCount.toString()
+
+                    // Guardar el número de seguidos en Firestore para persistencia
+                    userDocRef.update("followingCount", seguidosCount)
+                }
+            }
+        }.addOnFailureListener {
+            Toast.makeText(context, "Error al cargar datos de seguidores/seguidos", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun openSettings() {

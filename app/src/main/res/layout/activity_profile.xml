@@ -5,25 +5,6 @@
     android:padding="16dp"
     android:background="#FFFFFF">
 
-    <!-- Barra superior de navegación -->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="#FFFFFF"
-        android:padding="8dp">
-
-        <TextView
-            android:id="@+id/toolbar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Perfil"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_centerInParent="true" />
-
-    </RelativeLayout>
-
     <!-- Imagen de perfil y nombre de usuario -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -47,6 +28,21 @@
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#000000" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="20dp">
+        <Button
+            android:id="@+id/btn_seguir"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Seguir"
+            android:textColor="#FFFFFF"
+            android:padding="8dp" />
+
     </LinearLayout>
 
     <!-- Estadísticas (Publicaciones, Seguidores, Seguidos) -->
