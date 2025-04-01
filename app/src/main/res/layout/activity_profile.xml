@@ -29,6 +29,8 @@
             android:textStyle="bold"
             android:textColor="#000000" />
     </LinearLayout>
+
+    <!-- Botón de seguir -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -85,14 +87,23 @@
             android:orientation="vertical"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/seguidoresNum"
+            <FrameLayout
+                android:id="@+id/btn_seguidores"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="14sp"
-                android:textColor="#000000"
-                android:textStyle="bold" />
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/seguidoresNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="14sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/seguidores"
@@ -110,15 +121,22 @@
             android:orientation="vertical"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/seguidosNum"
+            <FrameLayout
+                android:id="@+id/btn_seguidos"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="14sp"
-                android:textColor="#000000"
-                android:textStyle="bold" />
-
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/seguidosNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="14sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+            </FrameLayout>
             <TextView
                 android:id="@+id/seguidos"
                 android:layout_width="wrap_content"

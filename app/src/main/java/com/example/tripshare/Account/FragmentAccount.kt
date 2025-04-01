@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ScrollView
@@ -40,6 +41,8 @@ class FragmentAccount : Fragment() {
     private lateinit var pubNumTextView: TextView  // Contador de fotos
     private lateinit var seguidoresNumTextView: TextView
     private lateinit var seguidosNumTextView: TextView
+    private lateinit var btnSeguidores: FrameLayout
+    private lateinit var btnSeguidos: FrameLayout
 
     private val PICK_IMAGE = 1
     private val photosList = mutableListOf<Photo>()
@@ -62,6 +65,11 @@ class FragmentAccount : Fragment() {
         pubNumTextView = view.findViewById(R.id.pubNum)
         seguidoresNumTextView = view.findViewById(R.id.seguidoresNum)
         seguidosNumTextView = view.findViewById(R.id.seguidosNum)
+        btnSeguidores = view.findViewById(R.id.btn_seguidores)
+        btnSeguidos = view.findViewById(R.id.btn_seguidos)
+
+        btnSeguidores.setOnClickListener { openFollowersActivity(true) }
+        btnSeguidos.setOnClickListener { openFollowersActivity(false) }
 
         recyclerView.layoutManager = GridLayoutManager(context, 3)
 
@@ -260,4 +268,22 @@ class FragmentAccount : Fragment() {
         val intent = Intent(activity, EditProfileActivity::class.java)
         startActivity(intent)
     }
+    private fun openFollowersActivity(isFollowers: Boolean) {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        db.collection("users").document(userUid).get()
+            .addOnSuccessListener { document ->
+                val userName = document.getString("name") ?: "Usuario"
+                val intent = Intent(activity, FollowersActivity::class.java).apply {
+                    putExtra("USER_NAME", userName)
+                    putExtra("USER_ID", userUid)
+                    putExtra("IS_FOLLOWERS", isFollowers)
+                }
+                startActivity(intent)
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Error al obtener el nombre de usuario", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 }

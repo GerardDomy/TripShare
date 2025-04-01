@@ -32,7 +32,6 @@
             android:padding="8dp"
             android:src="@drawable/ic_settings"
             android:contentDescription="Configuración" />
-
     </RelativeLayout>
 
     <!-- Imagen de perfil y nombre de usuario -->
@@ -71,7 +70,6 @@
         android:padding="8dp"
         android:layout_marginTop="20dp"
         android:layout_gravity="center" />
-
 
     <!-- Estadísticas (Publicaciones, Seguidores, Seguidos) -->
     <LinearLayout
@@ -113,14 +111,23 @@
             android:orientation="vertical"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/seguidoresNum"
+            <FrameLayout
+                android:id="@+id/btn_seguidores"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="14sp"
-                android:textColor="#000000"
-                android:textStyle="bold" />
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/seguidoresNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="14sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/seguidores"
@@ -138,15 +145,22 @@
             android:orientation="vertical"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/seguidosNum"
+            <FrameLayout
+                android:id="@+id/btn_seguidos"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="14sp"
-                android:textColor="#000000"
-                android:textStyle="bold" />
-
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/seguidosNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="14sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+            </FrameLayout>
             <TextView
                 android:id="@+id/seguidos"
                 android:layout_width="wrap_content"
@@ -157,6 +171,7 @@
         </LinearLayout>
 
     </LinearLayout>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="350dp">
