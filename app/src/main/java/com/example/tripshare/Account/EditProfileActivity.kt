@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.InputFilter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -29,6 +30,11 @@ class EditProfileActivity: AppCompatActivity() {
         profileImage = findViewById(R.id.edit_profile_image)
         editName = findViewById(R.id.edit_profile_name)
         btnSave = findViewById(R.id.btn_save_profile)
+
+        //Evitar mayúsculas y espacios
+        editName.filters = arrayOf(InputFilter { source, _, _, _, _, _ ->
+            source.toString().lowercase().replace(" ", "")
+        })
 
         profileImage.setOnClickListener { openGallery() }
         btnSave.setOnClickListener { saveProfileChanges() }
@@ -107,13 +113,4 @@ class EditProfileActivity: AppCompatActivity() {
                 }
         }
     }
-    /*
-
-    private fun saveProfileChanges() {
-        val intent = Intent()
-        intent.putExtra("name", editName.text.toString())
-        intent.putExtra("imageUri", imageUri.toString())
-        setResult(RESULT_OK, intent)
-        finish()
-    }*/
 }

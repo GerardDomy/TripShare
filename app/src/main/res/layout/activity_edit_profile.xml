@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:hint="Ingrese su nombre"
-        android:inputType="textPersonName"
+        android:inputType="textNoSuggestions"
         app:layout_constraintTop_toBottomOf="@id/edit_profile_image"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

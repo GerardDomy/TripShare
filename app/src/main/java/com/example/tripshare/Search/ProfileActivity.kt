@@ -1,16 +1,19 @@
 package com.example.tripshare.Search
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.tripshare.Account.FollowersActivity
 import com.example.tripshare.Account.Photo
 import com.example.tripshare.Account.PhotosAdapter
 import com.example.tripshare.R
@@ -48,6 +51,9 @@ class ProfileActivity : AppCompatActivity() {
         seguidosNumTextView = findViewById(R.id.seguidosNum)
         followButton = findViewById(R.id.btn_seguir)
 
+        val btnSeguidores = findViewById<FrameLayout>(R.id.btn_seguidores)
+        val btnSeguidos = findViewById<FrameLayout>(R.id.btn_seguidos)
+
         recyclerView.layoutManager = GridLayoutManager(this, 3)
         adapter = PhotosAdapter("")
         recyclerView.adapter = adapter
@@ -59,6 +65,16 @@ class ProfileActivity : AppCompatActivity() {
 
         followButton.setOnClickListener {
             toggleFollow()
+        }
+
+        // Listener para abrir la lista de seguidores
+        btnSeguidores.setOnClickListener {
+            openFollowersActivity(isFollowers = true)
+        }
+
+        // Listener para abrir la lista de seguidos
+        btnSeguidos.setOnClickListener {
+            openFollowersActivity(isFollowers = false)
         }
     }
 
@@ -188,5 +204,15 @@ class ProfileActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Error al cargar las fotos", Toast.LENGTH_SHORT).show()
             }
+    }
+    private fun openFollowersActivity(isFollowers: Boolean) {
+        viewedUserUid?.let { uid ->
+            val intent = Intent(this, FollowersActivity::class.java).apply {
+                putExtra("USER_NAME", userNameText.text.toString())
+                putExtra("USER_ID", uid)
+                putExtra("IS_FOLLOWERS", isFollowers)
+            }
+            startActivity(intent)
+        }
     }
 }
