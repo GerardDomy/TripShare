@@ -1,5 +1,6 @@
 package com.example.tripshare.Search
 
+import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -13,12 +14,18 @@ class ProfilePagerAdapter(fragmentActivity: FragmentActivity, private val viewed
 
     override fun createFragment(position: Int): Fragment {
         return if (position == 0) {
-            MapFragment2()
+            val fragment = MapFragment2()
+            // Pass viewedUserUid as arguments
+            fragment.arguments = Bundle().apply {
+                putString("viewedUserUid", viewedUserUid)
+            }
+            return fragment
         } else {
-            // Pasamos el viewedUserUid en lugar de la lista de fotos
+            // Pass viewedUserUid in place of the list of photos
             PhotosFragment(viewedUserUid)
         }
     }
 }
+
 
 
