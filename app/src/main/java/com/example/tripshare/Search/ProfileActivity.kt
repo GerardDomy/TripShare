@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -33,6 +34,9 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var seguidosNumTextView: TextView
     private lateinit var followButton: Button
     private lateinit var viewPager: ViewPager2
+    private lateinit var leftButton: ImageButton
+    private lateinit var rightButton: ImageButton
+
 
     private val db = FirebaseFirestore.getInstance()
     private val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid
@@ -50,6 +54,19 @@ class ProfileActivity : AppCompatActivity() {
         seguidosNumTextView = findViewById(R.id.seguidosNum)
         followButton = findViewById(R.id.btn_seguir)
         viewPager = findViewById(R.id.viewPagerProfile)
+        leftButton = findViewById(R.id.btn_left)
+        rightButton = findViewById(R.id.btn_right)
+        viewPager.isUserInputEnabled = false
+
+
+        leftButton.setOnClickListener {
+            viewPager.currentItem = 1 // Cambia a la primera página (por ejemplo: fotos)
+        }
+
+        rightButton.setOnClickListener {
+            viewPager.currentItem = 0 // Cambia a la segunda página (por ejemplo: mapa)
+        }
+
 
         findViewById<FrameLayout>(R.id.btn_seguidores).setOnClickListener {
             openFollowersActivity(isFollowers = true)
@@ -121,9 +138,18 @@ class ProfileActivity : AppCompatActivity() {
         viewedUserUid?.let { uid ->
             currentUserUid?.let { myUid ->
                 db.collection("users").document(myUid).collection("following").document(uid)
-                    .addSnapshotListener { doc, _ ->
-                        isFollowing = doc?.exists() == true
+                    .addSnapshotListener { document, _ ->
+                        isFollowing = document?.exists() == true
                         followButton.text = if (isFollowing) "Siguiendo" else "Seguir"
+                        if (isFollowing) {
+                            followButton.setBackgroundColor(Color.TRANSPARENT)
+                            followButton.setTextColor(Color.BLACK)
+                            followButton.setTypeface(null, Typeface.BOLD)
+                            followButton.setBackgroundResource(R.drawable.border_black)
+                        } else {
+                            followButton.setBackgroundResource(R.drawable.custom_button_background)
+                            followButton.setTextColor(Color.WHITE)
+                        }
                     }
             }
         }
@@ -138,11 +164,30 @@ class ProfileActivity : AppCompatActivity() {
                 if (isFollowing) {
                     userRef.delete()
                     viewedUserRef.delete()
+                    updateFollowCount(uid, myUid, -1)
                 } else {
                     userRef.set(mapOf("follow" to true))
                     viewedUserRef.set(mapOf("follow" to true))
+                    updateFollowCount(uid, myUid, 1)
                 }
             }
+        }
+    }
+    private fun updateFollowCount(viewedUid: String, myUid: String, change: Int) {
+        val viewedUserRef = db.collection("users").document(viewedUid)
+        val myUserRef = db.collection("users").document(myUid)
+
+        db.runTransaction { transaction ->
+            val viewedUserSnapshot = transaction.get(viewedUserRef)
+            val myUserSnapshot = transaction.get(myUserRef)
+
+            val newSeguidores = (viewedUserSnapshot.getLong("followersCount") ?: 0) + change
+            val newSeguidos = (myUserSnapshot.getLong("followingCount") ?: 0) + change
+
+            transaction.update(viewedUserRef, "followersCount", newSeguidores.coerceAtLeast(0))
+            transaction.update(myUserRef, "followingCount", newSeguidos.coerceAtLeast(0))
+        }.addOnSuccessListener {
+            loadFollowCounts()
         }
     }
 

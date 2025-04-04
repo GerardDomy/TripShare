@@ -21,7 +21,6 @@ class ProfilePagerAdapter(fragmentActivity: FragmentActivity, private val viewed
             }
             return fragment
         } else {
-            // Pass viewedUserUid in place of the list of photos
             PhotosFragment(viewedUserUid)
         }
     }
