@@ -1,5 +1,6 @@
 package com.example.tripshare.Account
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
@@ -10,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tripshare.R
+import com.example.tripshare.Search.ProfileActivity
 import com.example.tripshare.Search.User
 import com.example.tripshare.Search.UserAdapter
 import com.google.firebase.firestore.FirebaseFirestore
@@ -30,7 +32,10 @@ class FollowersActivity : AppCompatActivity() {
         // Inicializamos el RecyclerView y el adapter
         recyclerView = findViewById(R.id.recyclerViewUsers)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = UserAdapter(this, userList) // Usamos el UserAdapter
+        adapter = UserAdapter(this, userList) { user ->
+            // Aquí manejas el clic en un usuario
+            navigateToProfile(user)
+        }
         recyclerView.adapter = adapter
 
         // Recuperamos el nombre y el ID del usuario desde el Intent
@@ -46,10 +51,17 @@ class FollowersActivity : AppCompatActivity() {
         loadFollowersAndFollowing(isFollowersList)
     }
 
-    private fun loadFollowersAndFollowing(isFollowers: Boolean) {
-        val userUid = userId ?: return // Usamos el ID del usuario que se pasó a la Activity
+    private fun navigateToProfile(user: User) {
+        val intent = Intent(this, ProfileActivity::class.java).apply {
+            putExtra("USER_NAME", user.name)
+            putExtra("USER_ID", user.userId)
+        }
+        startActivity(intent)
+    }
 
-        // Seleccionamos la colección adecuada (seguidores o seguidos)
+    private fun loadFollowersAndFollowing(isFollowers: Boolean) {
+        val userUid = userId ?: return
+
         val collection = if (isFollowers) {
             db.collection("users").document(userUid).collection("followers")
         } else {
@@ -58,28 +70,30 @@ class FollowersActivity : AppCompatActivity() {
 
         collection.get().addOnSuccessListener { documents ->
             val users = mutableListOf<User>()
+            val total = documents.size()
 
-            // Recorremos todos los documentos de la colección (seguidores o seguidos)
             for (document in documents) {
-                val userId = document.id // Supongo que el ID del documento es el UID del usuario
+                val userId = document.id
 
                 db.collection("users").document(userId).get().addOnSuccessListener { userDoc ->
-                    // Cargamos la información del usuario (nombre y URI de la imagen)
                     val user = User(
+                        userId = userDoc.id,
                         name = userDoc.getString("name") ?: "Unknown",
                         imageUri = userDoc.getString("imageUri") ?: ""
                     )
                     users.add(user)
 
-                    // Cuando se hayan cargado todos los usuarios, actualizamos el RecyclerView
-                    if (users.size == documents.size()) {
-                        val adapter = FollowerAdapter(this@FollowersActivity, users)
+                    if (users.size == total) {
+                        adapter = UserAdapter(this@FollowersActivity, users) { selectedUser ->
+                            navigateToProfile(selectedUser)
+                        }
                         recyclerView.adapter = adapter
                     }
                 }
             }
         }.addOnFailureListener {
-            Toast.makeText(this@FollowersActivity, "Error al cargar los datos de seguidores/seguidos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@FollowersActivity, "Error al cargar los datos", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 }

@@ -58,15 +58,13 @@ class ProfileActivity : AppCompatActivity() {
         rightButton = findViewById(R.id.btn_right)
         viewPager.isUserInputEnabled = false
 
-
         leftButton.setOnClickListener {
-            viewPager.currentItem = 1 // Cambia a la primera página (por ejemplo: fotos)
+            viewPager.currentItem = 1
         }
 
         rightButton.setOnClickListener {
-            viewPager.currentItem = 0 // Cambia a la segunda página (por ejemplo: mapa)
+            viewPager.currentItem = 0
         }
-
 
         findViewById<FrameLayout>(R.id.btn_seguidores).setOnClickListener {
             openFollowersActivity(isFollowers = true)
@@ -80,26 +78,21 @@ class ProfileActivity : AppCompatActivity() {
             toggleFollow()
         }
 
+        viewedUserUid = intent.getStringExtra("USER_ID")
         val userName = intent.getStringExtra("USER_NAME") ?: ""
         userNameText.text = userName
 
-        loadUserInfo(userName)
-
+        viewedUserUid?.let {
+            loadUserInfo(it)
+        }
     }
 
-    private fun loadUserInfo(userName: String) {
-        val formattedUserName = userName.trim().lowercase()
-
-        db.collection("users")
-            .whereEqualTo("name", formattedUserName)
-            .limit(1)
+    private fun loadUserInfo(userId: String) {
+        db.collection("users").document(userId)
             .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val document = documents.documents[0]
-                    viewedUserUid = document.id
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
                     val userImageUri = document.getString("imageUri") ?: ""
-
                     if (userImageUri.isNotEmpty()) {
                         Picasso.get()
                             .load(userImageUri)
@@ -109,7 +102,7 @@ class ProfileActivity : AppCompatActivity() {
 
                     updateFollowButton()
                     loadFollowCounts()
-                    loadUserPhotos(viewedUserUid!!)
+                    loadUserPhotos(userId)
                 }
             }
     }

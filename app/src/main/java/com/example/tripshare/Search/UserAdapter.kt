@@ -13,7 +13,8 @@ import de.hdodenhof.circleimageview.CircleImageView
 
 class UserAdapter(
     private val mContext: Context,
-    private val mUsers: List<User>
+    private val mUsers: List<User>,
+    private val onUserClicked: (User) -> Unit // Callback para manejar clics
 ) : RecyclerView.Adapter<UserAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,20 +35,14 @@ class UserAdapter(
         }
 
         holder.itemView.setOnClickListener {
-            val intent = Intent(mContext, ProfileActivity::class.java).apply {
-                putExtra("USER_NAME", user.name)
-            }
-            mContext.startActivity(intent) // Iniciem l'Activity
+            onUserClicked(user) // Delegar el clic al fragmento
         }
     }
 
-    override fun getItemCount(): Int {
-        return mUsers.size
-    }
+    override fun getItemCount(): Int = mUsers.size
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val userNameText: TextView = itemView.findViewById(R.id.username)
         val profileImageView: CircleImageView = itemView.findViewById(R.id.profile_image)
     }
 }
-
