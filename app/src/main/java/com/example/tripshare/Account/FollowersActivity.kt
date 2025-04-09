@@ -32,10 +32,10 @@ class FollowersActivity : AppCompatActivity() {
         // Inicializamos el RecyclerView y el adapter
         recyclerView = findViewById(R.id.recyclerViewUsers)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = UserAdapter(this, userList) { user ->
+        adapter = UserAdapter(this, userList, { user ->
             // Aquí manejas el clic en un usuario
             navigateToProfile(user)
-        }
+        },false)
         recyclerView.adapter = adapter
 
         // Recuperamos el nombre y el ID del usuario desde el Intent
@@ -84,9 +84,9 @@ class FollowersActivity : AppCompatActivity() {
                     users.add(user)
 
                     if (users.size == total) {
-                        adapter = UserAdapter(this@FollowersActivity, users) { selectedUser ->
+                        adapter = UserAdapter(this@FollowersActivity, users, { selectedUser ->
                             navigateToProfile(selectedUser)
-                        }
+                        },false)
                         recyclerView.adapter = adapter
                     }
                 }

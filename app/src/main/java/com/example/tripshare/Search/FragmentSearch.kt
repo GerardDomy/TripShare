@@ -48,12 +48,17 @@ class FragmentSearch : Fragment() {
         searchEditText = view.findViewById(R.id.searchUsersET)
     }
 
-    private fun setupRecyclerView() {
+    private fun setupRecyclerView(isSearching: Boolean = false) {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        userAdapter = UserAdapter(requireContext(), mUsers) { user ->
-            addVisitedUser(user)
-            navigateToProfile(user)
-        }
+        userAdapter = UserAdapter(
+            requireContext(),
+            mUsers,
+            { user ->
+                addVisitedUser(user)
+                navigateToProfile(user)
+            },
+            showDeleteButton = !isSearching // El botón se muestra solo cuando NO hay búsqueda
+        )
         recyclerView.adapter = userAdapter
     }
 
@@ -62,7 +67,13 @@ class FragmentSearch : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(cs: CharSequence?, start: Int, before: Int, count: Int) {
-                if (cs.isNullOrEmpty()) showVisitedUsers() else searchForUser(cs.toString())
+                if (cs.isNullOrEmpty()) {
+                    showVisitedUsers()
+                    setupRecyclerView(false) // Reactivar el botón
+                } else {
+                    searchForUser(cs.toString())
+                    setupRecyclerView(true) // Desactivar el botón
+                }
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -95,11 +106,12 @@ class FragmentSearch : Fragment() {
     }
 
     private fun addVisitedUser(user: User) {
-        if (visitedUsers.none { it.userId == user.userId }) {
-            visitedUsers.add(0, user)
-            saveVisitedUserToFirestore(user)
-            updateRecyclerViewVisibility(visitedUsers)
-        }
+        // Eliminar si ya estaba y volver a agregar al principio
+        visitedUsers.removeAll { it.userId == user.userId }
+        visitedUsers.add(0, user)
+
+        saveVisitedUserToFirestore(user)
+        updateRecyclerViewVisibility(visitedUsers)
     }
 
     private fun showVisitedUsers() {
