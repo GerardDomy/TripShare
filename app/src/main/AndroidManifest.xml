@@ -52,6 +52,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".Register_Login.LauncherActivity"
+            android:exported="false" />
+        <activity
             android:name=".Account.EditProfileActivity"
             android:exported="false" />
         <activity android:name=".MainActivity" />

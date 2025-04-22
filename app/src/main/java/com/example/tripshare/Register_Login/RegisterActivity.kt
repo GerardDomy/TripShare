@@ -2,6 +2,7 @@ package com.example.tripshare.Register_Login
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -69,36 +70,32 @@ class RegisterActivity : AppCompatActivity() {
 
     // Método para registrar al usuario en Firebase
     private fun register(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password) // Crear el usuario con el email y la contraseña
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
-                // Comprobar si el registro fue exitoso
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     user?.let {
-                        // Crear un mapa con los datos del usuario para guardarlos en Firestore
+                        val deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
                         val userData = hashMapOf(
                             "uid" to it.uid,
-                            "email" to it.email
+                            "email" to it.email,
+                            "devices" to listOf(deviceId)
                         )
-                        db.collection("users").document(it.uid).set(userData) // Guardar los datos del usuario en Firestore
+                        db.collection("users").document(it.uid).set(userData)
                             .addOnSuccessListener {
-                                // Si el guardado es exitoso, redirigir al usuario a la pantalla principal
                                 startActivity(Intent(this, MainActivity::class.java))
                                 finish()
                             }
                             .addOnFailureListener {
-                                // Si hay un error al guardar los datos, mostrar un mensaje de error
                                 Toast.makeText(applicationContext, "Error saving user data", Toast.LENGTH_SHORT).show()
                             }
                     }
-                }
-                else
-                {
-                    // Si el registro falla, mostrar un mensaje de error
+                } else {
                     Toast.makeText(applicationContext, "Register failed!", Toast.LENGTH_SHORT).show()
                 }
             }
     }
+
 
     // Método para verificar si los campos de email, contraseña y repetición de contraseña no están vacíos
     private fun checkEmpty(email: String, password: String, repeatPassword: String): Boolean {

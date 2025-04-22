@@ -2,6 +2,7 @@ package com.example.tripshare.Register_Login
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.tripshare.MainActivity
 import com.example.tripshare.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginActivity : AppCompatActivity() {
 
@@ -61,24 +63,31 @@ class LoginActivity : AppCompatActivity() {
     }
 
     // Método para realizar el login con el email y la contraseña proporcionados
-    private fun login(email: String, password: String)
-    {
-        auth.signInWithEmailAndPassword(email, password) // Intentar hacer login con Firebase
-            .addOnCompleteListener(this){task ->
-                // Comprobar si el login fue exitoso
-                if (task.isSuccessful)
-                {
-                    // Si es exitoso, redirigir a la MainActivity
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
-                }
-                else
-                {
-                    // Si el login falla, mostrar un mensaje de error
+    private fun login(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    user?.let {
+                        val deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+                        val userRef = FirebaseFirestore.getInstance().collection("users").document(it.uid)
+
+                        userRef.get().addOnSuccessListener { document ->
+                            val devices = document.get("devices") as? List<String> ?: listOf()
+                            if (!devices.contains(deviceId)) {
+                                val updatedDevices = devices + deviceId
+                                userRef.update("devices", updatedDevices)
+                            }
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
+                        }
+                    }
+                } else {
                     Toast.makeText(applicationContext, "Login failed!", Toast.LENGTH_LONG).show()
                 }
             }
     }
+
 
     // Método para verificar si los campos de email y contraseña no están vacíos
     private fun checkEmpty(email: String, password: String): Boolean

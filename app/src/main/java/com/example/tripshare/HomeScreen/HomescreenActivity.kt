@@ -8,6 +8,7 @@ import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tripshare.R
+import com.example.tripshare.Register_Login.LauncherActivity
 import com.example.tripshare.Register_Login.RegisterActivity
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -31,7 +32,7 @@ class HomescreenActivity : AppCompatActivity() {
 
         // Retardo de la pantalla de bienvenida (Splashscreen)
         Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, RegisterActivity::class.java)
+            val intent = Intent(this, LauncherActivity::class.java)
             startActivity(intent)
             finish()
             // Tiempo en milisegundos
