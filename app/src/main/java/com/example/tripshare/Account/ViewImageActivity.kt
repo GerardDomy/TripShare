@@ -33,15 +33,23 @@ class ViewImageActivity : AppCompatActivity() {
     }
 
     private fun loadUserInfo() {
-        val userUid = viewedUserUid ?: FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val viewedUid = viewedUserUid ?: FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
         val db = FirebaseFirestore.getInstance()
 
-        db.collection("users").document(userUid).get()
+        db.collection("users").document(viewedUid).get()
             .addOnSuccessListener { document ->
                 userName = document.getString("name") ?: "Usuario"
                 userImageUri = document.getString("imageUri") ?: ""
 
-                adapter = ImageAdapter(photosList, userName, userImageUri)
+                adapter = ImageAdapter(
+                    photosList,
+                    userName,
+                    userImageUri,
+                    currentUid,
+                    viewedUid
+                )
                 recyclerView.adapter = adapter
                 loadPhotos()
             }
@@ -49,6 +57,7 @@ class ViewImageActivity : AppCompatActivity() {
                 Toast.makeText(this, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     private fun loadPhotos() {
         val userUid = viewedUserUid ?: FirebaseAuth.getInstance().currentUser?.uid ?: return
