@@ -12,37 +12,46 @@ import com.google.firebase.firestore.Query
 
 class ViewImageActivity : AppCompatActivity() {
 
+    private var viewedUserUid: String? = null
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ImageAdapter
     private var photosList: MutableList<Photo> = mutableListOf()
+    private var userName: String = "Usuario" // Valores por defecto
+    private var userImageUri: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_image)
 
+        viewedUserUid = intent.getStringExtra("USER_ID")
+
         recyclerView = findViewById(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        val user = FirebaseAuth.getInstance().currentUser
-        val db = FirebaseFirestore.getInstance()
-        user?.let {
-            db.collection("users").document(it.uid).get()
-                .addOnSuccessListener { document ->
-                    val name = document.getString("name") ?: "Usuario"
-                    val imageUri = document.getString("imageUri") ?: ""
+        loadUserInfo() // Cargar la información del usuario
 
-                    adapter = ImageAdapter(photosList, name, imageUri)
-                    recyclerView.adapter = adapter
-                    loadPhotos()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
-                }
-        }
+    }
+
+    private fun loadUserInfo() {
+        val userUid = viewedUserUid ?: FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(userUid).get()
+            .addOnSuccessListener { document ->
+                userName = document.getString("name") ?: "Usuario"
+                userImageUri = document.getString("imageUri") ?: ""
+
+                adapter = ImageAdapter(photosList, userName, userImageUri)
+                recyclerView.adapter = adapter
+                loadPhotos()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun loadPhotos() {
-        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userUid = viewedUserUid ?: FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
         val photosRef = db.collection("users").document(userUid).collection("photos")
 
@@ -50,15 +59,12 @@ class ViewImageActivity : AppCompatActivity() {
             .addOnSuccessListener { documents ->
                 photosList.clear()
                 for (document in documents) {
-                    val id = document.id // Obtenemos el ID del documento
+                    val id = document.id
                     val imageUrl = document.getString("imageUrl") ?: ""
-                    val description = document.getString("description")
-                        ?: "" // Asegúrate de que "description" esté bien guardado
-                    val location = document.getString("location")
-                        ?: "" // Asegúrate de que "location" esté bien guardado
+                    val description = document.getString("description") ?: ""
+                    val location = document.getString("location") ?: ""
 
                     if (imageUrl.isNotEmpty()) {
-                        // Aquí estamos añadiendo el objeto Photo con los valores correctos
                         photosList.add(Photo(imageUrl, description, location, id))
                     }
                 }

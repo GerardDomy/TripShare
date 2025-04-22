@@ -49,6 +49,8 @@ class ImageAdapter(
         private val buttonLike: ImageButton = itemView.findViewById(R.id.button_like)
         private val likeEffectView: ImageView = itemView.findViewById(R.id.like_effect_view)
         private val buttonOptions: ImageButton = itemView.findViewById(R.id.button_options)
+        private val likeCountText: TextView = itemView.findViewById(R.id.text_like_count)
+
 
         private var isLiked = false
         private lateinit var photoId: String
@@ -101,6 +103,16 @@ class ImageAdapter(
             // Inicializamos el efecto de "like"
             likeEffectView.visibility = View.GONE
             checkIfLiked()
+            loadLikeCount()
+        }
+
+        private fun loadLikeCount() {
+            db.collection("likes").document(photoId).collection("users")
+                .get()
+                .addOnSuccessListener { documents ->
+                    val likeCount = documents.size()
+                    likeCountText.text = likeCount.toString()
+                }
         }
 
 
@@ -146,12 +158,17 @@ class ImageAdapter(
             userUid?.let { uid ->
                 val likeRef = db.collection("likes").document(photoId).collection("users").document(uid)
                 if (isLiked) {
-                    likeRef.set(mapOf("liked" to true))
+                    likeRef.set(mapOf("liked" to true)).addOnSuccessListener {
+                        loadLikeCount()
+                    }
                 } else {
-                    likeRef.delete()
+                    likeRef.delete().addOnSuccessListener {
+                        loadLikeCount()
+                    }
                 }
             }
         }
+
 
         private fun checkIfLiked() {
             userUid?.let { uid ->

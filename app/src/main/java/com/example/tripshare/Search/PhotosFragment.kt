@@ -1,5 +1,6 @@
 package com.example.tripshare.Search
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tripshare.Account.Photo
 import com.example.tripshare.Account.PhotosAdapter
+import com.example.tripshare.Account.ViewImageActivity
 import com.example.tripshare.R
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -20,8 +22,21 @@ class PhotosFragment(private val userUid: String) : Fragment() {
         val view = inflater.inflate(R.layout.fragment_photos, container, false)
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewPhotos)
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
-        val adapter = PhotosAdapter("")
+        val adapter = PhotosAdapter(userUid)
+
+        // En PhotosFragment.kt
+        adapter.onImageClickListener = { imageUri ->
+            val intent = Intent(activity, ViewImageActivity::class.java).apply {
+                putExtra("USER_ID", userUid) // Añadir esta línea
+                putExtra("imageUri", imageUri)
+            }
+            startActivity(intent)
+        }
+
+
         recyclerView.adapter = adapter
+
+
 
         db.collection("users").document(userUid).collection("photos")
             .orderBy("timestamp", Query.Direction.DESCENDING)
