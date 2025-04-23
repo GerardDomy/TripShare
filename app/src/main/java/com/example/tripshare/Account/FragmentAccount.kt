@@ -28,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.squareup.picasso.Picasso
 
 
 class FragmentAccount : Fragment() {
@@ -175,8 +176,15 @@ class FragmentAccount : Fragment() {
 
                 profileName.text = document.getString("name")
                 document.getString("imageUri")?.let { uri ->
-                    profileImage.setImageURI(Uri.parse(uri))
+                    if (uri.isNotEmpty()) {
+                        Picasso.get()
+                            .load(uri)
+                            .placeholder(R.drawable.ic_fragment_account) // Ícono por defecto mientras carga
+                            .error(R.drawable.ic_fragment_account) // Imagen si ocurre un error
+                            .into(profileImage)
+                    }
                 }
+
             }
                 .addOnFailureListener {
                     Toast.makeText(context, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
