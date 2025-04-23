@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.tripshare.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.squareup.picasso.Picasso
 
 class EditProfileActivity: AppCompatActivity() {
     private lateinit var profileImage: ImageView
@@ -103,14 +104,26 @@ class EditProfileActivity: AppCompatActivity() {
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
                         editName.setText(document.getString("name"))
-                        document.getString("imageUri")?.let { uri ->
-                            profileImage.setImageURI(Uri.parse(uri))
+
+                        val userImageUri = document.getString("imageUri") ?: ""
+                        if (userImageUri.isNotEmpty()) {
+                            val uri = Uri.parse(userImageUri)
+                            contentResolver.takePersistableUriPermission(
+                                uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            )
+
+                            Picasso.get()
+                                .load(uri)
+                                .placeholder(R.drawable.ic_fragment_account)
+                                .into(profileImage)
                         }
                     }
                 }
                 .addOnFailureListener {
-                    Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Error al obtener datos de usuario", Toast.LENGTH_SHORT).show()
                 }
         }
     }
+
 }
