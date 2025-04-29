@@ -79,7 +79,7 @@ class FollowersActivity : AppCompatActivity() {
                     val user = User(
                         userId = userDoc.id,
                         name = userDoc.getString("name") ?: "Unknown",
-                        imageUri = userDoc.getString("imageUri") ?: ""
+                        imageUri = userDoc.getString("imageUrl") ?: ""
                     )
                     users.add(user)
 

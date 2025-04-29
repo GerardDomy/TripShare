@@ -28,7 +28,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
+import java.util.UUID
 
 
 class FragmentAccount : Fragment() {
@@ -79,7 +81,7 @@ class FragmentAccount : Fragment() {
 
         adapter.onImageClickListener = { imageUri ->
             val intent = Intent(activity, ViewImageActivity::class.java)
-            intent.putExtra("imageUri", imageUri)
+            intent.putExtra("imageUrl", imageUri)
             startActivity(intent)
         }
 
@@ -144,25 +146,47 @@ class FragmentAccount : Fragment() {
 
     private fun addPhotoToGallery(imageUri: Uri, description: String, location: String) {
         val userUid = user?.uid ?: return
+        val storageRef = FirebaseStorage.getInstance().reference
+        val fileName = UUID.randomUUID().toString() + ".jpg"
+        val photoRef = storageRef.child("user_photos/$userUid/$fileName")
+
+        // Subir imagen a Storage
+        photoRef.putFile(imageUri)
+            .continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let { throw it }
+                }
+                photoRef.downloadUrl
+            }.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val downloadUri = task.result
+                    savePhotoMetadataToFirestore(downloadUri.toString(), description, location)
+                } else {
+                    Toast.makeText(context, "Error al subir la imagen", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+    private fun savePhotoMetadataToFirestore(downloadUrl: String, description: String, location: String) {
+        val userUid = user?.uid ?: return
         val photosRef = db.collection("users").document(userUid).collection("photos")
 
         val photoData = hashMapOf(
-            "imageUrl" to imageUri.toString(),
+            "imageUrl" to downloadUrl,
             "description" to description,
             "location" to location,
             "timestamp" to System.currentTimeMillis()
         )
 
-        // Agregar foto a la galería
         photosRef.add(photoData)
             .addOnSuccessListener {
                 Toast.makeText(context, "Foto publicada correctamente", Toast.LENGTH_SHORT).show()
-                loadUserPhotos() // Recargar fotos y actualizar el contador correctamente
+                loadUserPhotos()
             }
             .addOnFailureListener {
-                Toast.makeText(context, "Error al guardar la foto", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Error al guardar la información de la foto", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     private fun loadUserProfile() {
         user?.let {
@@ -175,7 +199,7 @@ class FragmentAccount : Fragment() {
                 }
 
                 profileName.text = document.getString("name")
-                document.getString("imageUri")?.let { uri ->
+                document.getString("imageUrl")?.let { uri ->
                     if (uri.isNotEmpty()) {
                         Picasso.get()
                             .load(uri)

@@ -1,5 +1,6 @@
 package com.example.tripshare.Account
 
+import android.app.Activity
 import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -20,9 +21,10 @@ import com.bumptech.glide.Glide
 import com.example.tripshare.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class ImageAdapter(
-    private val photos: List<Photo>,
+    private val photos: MutableList<Photo>,
     private val userName: String,
     private val userImageUri: String,
     private val currentUserUid: String,
@@ -37,12 +39,17 @@ class ImageAdapter(
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val photo = photos[position]
-        holder.bind(photo, userName, userImageUri, currentUserUid == viewedUserUid)
+        holder.bind(photo, userName, currentUserUid == viewedUserUid)
     }
 
     override fun getItemCount(): Int = photos.size
 
-    class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    fun removePhotoAt(position: Int) {
+        photos.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val profileImage: ImageView = itemView.findViewById(R.id.image_profile)
         private val profileName: TextView = itemView.findViewById(R.id.profile_username)
         private val imageView: ImageView = itemView.findViewById(R.id.image_view)
@@ -55,6 +62,7 @@ class ImageAdapter(
 
         private var isLiked = false
         private lateinit var photoId: String
+        private lateinit var photoUrl: String
         private val userUid = FirebaseAuth.getInstance().currentUser?.uid
         private val db = FirebaseFirestore.getInstance()
 
@@ -81,19 +89,37 @@ class ImageAdapter(
             }
         }
 
-        fun bind(photo: Photo, userName: String, userImageUri: String, isCurrentUser: Boolean) {
+        fun bind(photo: Photo, userName: String,isCurrentUser: Boolean) {
             profileName.text = userName
             this.photoId = photo.id
+            this.photoUrl = photo.imageUrl
 
             buttonOptions.visibility = if (isCurrentUser) View.VISIBLE else View.GONE
-
-            if (userImageUri.isNotEmpty()) {
-                Glide.with(itemView.context)
-                    .load(userImageUri)
-                    .circleCrop()
-                    .into(profileImage)
+            // Cargar imagen de perfil del usuario visto (viewedUserUid)
+            val userUid = viewedUserUid  // Utiliza el UID del usuario que estás viendo (no el usuario actual)
+            if (userUid != null) {
+                db.collection("users").document(userUid)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        val profileImageUrl = document.getString("imageUrl")
+                        if (!profileImageUrl.isNullOrEmpty()) {
+                            Glide.with(itemView.context)
+                                .load(profileImageUrl)  // Cargar la URL de la imagen de perfil del usuario visto
+                                .circleCrop()  // Asegúrate de que la imagen sea redonda
+                                .placeholder(R.drawable.ic_fragment_account)  // Placeholder por si no se encuentra
+                                .into(profileImage)
+                        } else {
+                            // Si el usuario no tiene imagen de perfil, usar la imagen por defecto
+                            profileImage.setImageResource(R.drawable.ic_fragment_account)
+                        }
+                    }
+                    .addOnFailureListener {
+                        // Si ocurre un error, usar la imagen por defecto
+                        profileImage.setImageResource(R.drawable.ic_fragment_account)
+                    }
             }
 
+            // Resto del código para cargar la imagen, descripción, ubicación, likes, etc.
             Glide.with(itemView.context)
                 .load(photo.imageUrl)
                 .into(imageView)
@@ -105,6 +131,8 @@ class ImageAdapter(
             checkIfLiked()
             loadLikeCount()
         }
+
+
 
         private fun loadLikeCount() {
             db.collection("likes").document(photoId).collection("users")
@@ -146,6 +174,7 @@ class ImageAdapter(
                     override fun onAnimationEnd(animation: Animation?) {
                         likeEffectView.visibility = View.GONE
                     }
+
                     override fun onAnimationRepeat(animation: Animation?) {}
                 })
             }
@@ -267,22 +296,32 @@ class ImageAdapter(
             val photoRef = db.collection("users").document(userUid!!).collection("photos").document(photoId)
             val likesRef = db.collection("likes").document(photoId).collection("users")
 
+            // Borrar "likes"
             likesRef.get().addOnSuccessListener { documents ->
                 for (document in documents) {
                     document.reference.delete()
                 }
             }
 
-            photoRef.delete()
-                .addOnSuccessListener {
+            // Borrar imagen del Storage
+            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(photoUrl)
+            storageRef.delete().addOnSuccessListener {
+                // Borrar documento de Firestore
+                photoRef.delete().addOnSuccessListener {
                     Toast.makeText(itemView.context, "Foto eliminada", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
+                    (itemView.context as? Activity)?.runOnUiThread {
+                        removePhotoAt(adapterPosition)
+                    }
+                }.addOnFailureListener {
                     Toast.makeText(itemView.context, "Error al eliminar la foto", Toast.LENGTH_SHORT).show()
                 }
+            }.addOnFailureListener {
+                Toast.makeText(itemView.context, "Error al borrar imagen del Storage", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
+
 
 
 

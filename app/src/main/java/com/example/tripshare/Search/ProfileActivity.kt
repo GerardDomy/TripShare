@@ -92,7 +92,7 @@ class ProfileActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val userImageUri = document.getString("imageUri") ?: ""
+                    val userImageUri = document.getString("imageUrl") ?: ""
                     if (userImageUri.isNotEmpty()) {
                         Picasso.get()
                             .load(userImageUri)

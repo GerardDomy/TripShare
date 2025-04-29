@@ -93,7 +93,7 @@ class FragmentSearch : Fragment() {
                         val user = User(
                             userId = document.id,
                             name = document.getString("name") ?: "",
-                            imageUri = document.getString("imageUri") ?: ""
+                            imageUri = document.getString("imageUrl") ?: ""
                         )
                         mUsers.add(user)
                     }
