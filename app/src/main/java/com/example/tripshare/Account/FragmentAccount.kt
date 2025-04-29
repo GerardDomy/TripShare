@@ -74,7 +74,14 @@ class FragmentAccount : Fragment() {
         btnSeguidores.setOnClickListener { openFollowersActivity(true) }
         btnSeguidos.setOnClickListener { openFollowersActivity(false) }
 
-        recyclerView.layoutManager = GridLayoutManager(context, 3)
+        val displayMetrics = resources.displayMetrics
+        val screenWidthDp = displayMetrics.widthPixels / displayMetrics.density
+
+        val spanCount = if (screenWidthDp >= 600) 4 else 3  // 600dp o més = tablet
+
+        recyclerView.layoutManager = GridLayoutManager(context, spanCount)
+
+
 
         val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
         adapter = PhotosAdapter(userUid)
@@ -317,5 +324,4 @@ class FragmentAccount : Fragment() {
                 Toast.makeText(context, "Error al obtener el nombre de usuario", Toast.LENGTH_SHORT).show()
             }
     }
-
 }

@@ -21,7 +21,14 @@ class PhotosFragment(private val userUid: String) : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_photos, container, false)
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewPhotos)
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
+
+        val displayMetrics = resources.displayMetrics
+        val screenWidthDp = displayMetrics.widthPixels / displayMetrics.density
+
+        val spanCount = if (screenWidthDp >= 600) 4 else 3  // 600dp o més = tablet
+
+        recyclerView.layoutManager = GridLayoutManager(context, spanCount)
+
         val adapter = PhotosAdapter(userUid)
 
         // En PhotosFragment.kt
