@@ -229,18 +229,17 @@ class FragmentAccount : Fragment() {
 
         photosRef.orderBy("timestamp", Query.Direction.DESCENDING).get()
             .addOnSuccessListener { documents ->
-                photosList.clear() // Limpia la lista antes de agregar nuevas fotos
-
+                val newList = mutableListOf<Photo>()
                 for (document in documents) {
                     val imageUrl = document.getString("imageUrl") ?: continue
                     val description = document.getString("description") ?: ""
                     val location = document.getString("location") ?: ""
-
-                    photosList.add(Photo(imageUrl, description, location))
+                    newList.add(Photo(imageUrl, description, location))
                 }
 
-                adapter.notifyDataSetChanged()
-                updatePhotoCount(photosList.size)
+                adapter.updatePhotos(newList)
+                updatePhotoCount(newList.size)
+
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Error al cargar las fotos", Toast.LENGTH_SHORT).show()

@@ -17,13 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class PhotosAdapter(private val userUid: String) : RecyclerView.Adapter<PhotosAdapter.PhotoViewHolder>() {
 
     private var photosList: MutableList<Photo> = mutableListOf()
-    private val db = FirebaseFirestore.getInstance()
     var onImageClickListener: ((String) -> Unit)? = null
-    private val user = FirebaseAuth.getInstance().currentUser
-
-    init {
-        loadPhotosFromFirestore()
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_photo, parent, false)
@@ -37,12 +31,10 @@ class PhotosAdapter(private val userUid: String) : RecyclerView.Adapter<PhotosAd
 
         if (!photo.imageUrl.isNullOrEmpty()) {
             Glide.with(holder.itemView.context)
-                .load(photo.imageUrl) // URL válida
-                .placeholder(R.drawable.logo) // Imagen temporal mientras se carga
-                .error(R.drawable.rounded_button) // Imagen en caso de error
+                .load(photo.imageUrl)
+                .placeholder(R.drawable.logo)
+                .error(R.drawable.rounded_button)
                 .into(holder.imageView)
-        } else {
-            Log.e("PhotosAdapter", "URL de imagen vacía o nula")
         }
 
         holder.itemView.setOnClickListener {
@@ -61,31 +53,8 @@ class PhotosAdapter(private val userUid: String) : RecyclerView.Adapter<PhotosAd
     inner class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.imageViewPhoto)
     }
-
-    private fun loadPhotosFromFirestore() {
-        val userUid = user?.uid ?: return
-        val photosRef = db.collection("users").document(userUid).collection("photos")
-
-        photosRef.orderBy("timestamp", Query.Direction.DESCENDING).get()
-            .addOnSuccessListener { documents ->
-                photosList.clear()
-                for (document in documents) {
-                    val imageUrl = document.getString("imageUrl") ?: continue
-                    val description = document.getString("description") ?: ""
-                    val location = document.getString("location") ?: ""
-
-                    Log.d("FirestoreDebug", "Imagen cargada: $imageUrl")
-
-                    val photo = Photo(imageUrl, description, location)  // Crear objeto correctamente
-                    photosList.add(photo)
-                }
-                notifyDataSetChanged()
-            }
-            .addOnFailureListener { exception ->
-                Log.e("FirestoreDebug", "Error al cargar imágenes", exception)
-            }
-    }
 }
+
 
 
 
