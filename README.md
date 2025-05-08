@@ -2,6 +2,6 @@
 [Veure Manual d'usuari TripShare en PDF](./Manual%20d’Usuari%20TripShare.pdf)
 
 
-## APK
+## 📲 Instal·la l'APK
 
 [Descarregar APK](./app-debug.apk)
